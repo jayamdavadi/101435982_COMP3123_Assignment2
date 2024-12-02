@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  # MongoDB container
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb-data:/data/db
+    networks:
+      - app-network
+
+  # Backend container (Node.js)
+  backend:
+    build:
+      context: ./backend
+    container_name: backend
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongo
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/101435982_COMP3123
+    networks:
+      - app-network
+
+  # Frontend container (React)
+  frontend:
+    build:
+      context: ./frontend
+    container_name: frontend
+    ports:
+      - "5001:5000"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+# Volumes to persist MongoDB data
+volumes:
+  mongodb-data:
+
+# Networks for communication between services
+networks:
+  app-network:
+    driver: bridge
